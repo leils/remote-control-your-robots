@@ -6,14 +6,15 @@
 #include <OSCMessage.h>
 OSCErrorCode error;
 
-#define BUTTON 4
-
 // Define these in secrets.h
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 
 WiFiUDP Udp;
 const unsigned int localPort = 8080;  // local port to listen for UDP packets (here's where we send the packets)
+
+const int buttonPin = 12;
+int lastButtonState = 0;
 
 void setup() {
   //-------------------------- Serial Setup -----------------//
@@ -25,7 +26,7 @@ void setup() {
   //-------------------------- I/O Setup -------------------//
 
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(BUTTON, INPUT);
+  pinMode(buttonPin, INPUT);
 
   //-------------------------- Connect to WiFi Network ----//
   Serial.println();
@@ -55,7 +56,16 @@ void setup() {
 
 void loop() {
   //----------------------------------- Handle Outgoing OSC Messages -----------------//
-  //TODO handle and check button presses
+  int buttonState = digitalRead(buttonPin);
+
+  // check if the pushbutton is pressed.
+  // If the buttonState is HIGH and the lastButtonState is LOW, the button has
+  // just been pressed.
+  if (buttonState == HIGH && lastButtonState == LOW) {
+    sendButtonPress(); // Send an OSC message
+  }
+
+  lastButtonState = buttonState; // Update lastButtonState to compare in next loop
 
   //----------------------------------- Handle incoming OSC Messages -----------------//
   OSCMessage msg;
@@ -66,7 +76,7 @@ void loop() {
       msg.fill(Udp.read()); // Read the entire packet
     }
     if (!msg.hasError()) {
-      msg.dispatch("/ping", ping); // For any messages in the "ping" channel, use our "ping" function
+      msg.dispatch("/ping", ping); // For any messages in the "ping" channel, call our "ping" function
     } else {
       error = msg.getError();
       Serial.print("OSC error: ");
@@ -84,6 +94,7 @@ void sendButtonPress() {
   Serial.println("Button pressed");
   // Create a new message that begins with the channel "/buttonPress"
    OSCMessage outMsg("/buttonPress");
+   // Add "1" to our message.
    outMsg.add(1);
 
    Udp.beginPacket(outIp, outPort);

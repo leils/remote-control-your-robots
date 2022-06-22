@@ -6,7 +6,6 @@
 #include <OSCMessage.h>
 OSCErrorCode error;
 
-
 // Define these in secrets.h
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
