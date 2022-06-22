@@ -1,5 +1,5 @@
 #include "secrets.h"
-//#include <WiFi.h> // for ESP32
+// #include <WiFi.h> // for ESP32
 #include <WiFiNINA.h>  //for Nano IOT 33
 #include <WiFiUdp.h>
 
@@ -13,7 +13,11 @@ char pass[] = SECRET_PASS;
 WiFiUDP Udp;
 const unsigned int localPort = 8080;  // local port to listen for UDP packets (here's where we send the packets)
 
-const int buttonPin = 12;
+IPAddress outIp(192, 168, 50, 115); // Your Computer's IP
+const unsigned int outPort = 8001;
+
+// const int buttonPin = 34; // for ESP32
+const int buttonPin = 2; // for Nano IOT 33
 int lastButtonState = 0;
 
 void setup() {
@@ -31,7 +35,7 @@ void setup() {
   //-------------------------- Connect to WiFi Network ----//
   Serial.println();
   Serial.println();
-  Serial.print("Connecting to ")
+  Serial.print("Connecting to ");
   Serial.println(ssid);
 
   WiFi.begin(ssid, pass);
