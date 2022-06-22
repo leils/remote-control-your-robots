@@ -3,6 +3,10 @@
 #include <WiFiNINA.h>  //for Nano IOT 33
 #include <WiFiUdp.h>
 
+#include <OSCMessage.h>
+OSCErrorCode error;
+
+
 // Define these in secrets.h
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
@@ -48,4 +52,25 @@ void setup() {
 }
 
 void loop() {
+  //----------------------------------- Handle incoming OSC Messages -----------------//
+  OSCMessage msg;
+  int size = Udp.parsePacket(); // Get what size the OSC packet is
+
+  if (size > 0) {
+    while (size--) {
+      msg.fill(Udp.read()); // Read the entire packet
+    }
+    if (!msg.hasError()) {
+      msg.dispatch("/ping", ping); // For any messages in the "ping" channel, use our "ping" function
+    } else {
+      error = msg.getError();
+      Serial.print("OSC error: ");
+      Serial.println(error);
+    }
+  }
+}
+
+// Handles OSC messages from the ping channel
+void ping(OSCMessage &msg) {
+  Serial.println("ping received");
 }
