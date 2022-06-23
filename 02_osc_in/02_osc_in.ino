@@ -60,7 +60,7 @@ void loop() {
       msg.fill(Udp.read()); // Read the entire packet
     }
     if (!msg.hasError()) {
-      msg.dispatch("/ping", ping); // For any messages in the "ping" channel, use our "ping" function
+      msg.dispatch("/led", led); // For any messages in the "ping" channel, use our "ping" function
     } else {
       error = msg.getError();
       Serial.print("OSC error: ");
@@ -69,7 +69,11 @@ void loop() {
   }
 }
 
-// Handles OSC messages from the ping channel
-void ping(OSCMessage &msg) {
-  Serial.println("ping received");
+// Handles OSC messages from the led channel
+void led(OSCMessage &msg) {
+  Serial.print("LED message received: ");
+  int sentState = msg.getInt(0);
+  Serial.println(sentState);
+
+  digitalWrite(LED_BUILTIN, sentState);
 }
